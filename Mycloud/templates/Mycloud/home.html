@@ -1,0 +1,17 @@
+{% block body_block %}
+
+    {% load static %}
+    
+    <h1>You are logged :</h1>
+    {% block content %}
+        {% csrf_token %}
+        <h4>Welcome Home</h4>
+        {% if user.is_loggedin  %}
+        <h2>Hello {{ user.username }}</h2>
+        {% endif %}
+  
+    {% endblock %}
+
+    <h2><a href="{% url 'Mycloud:login' %}">{{ logout }}logout</a></h2>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+
+{% block body_block %}
+
+  {% load static %}
+  
+  {% block content %}
+    {% csrf_token %}
+  {% endblock %}
+  
+
+    <h1>Welcome to the cloud !</h1>
+    {% if user.is_authenticated %}
+        <h2>Hello {{ user.username }}</h2>
+    {% else %}
+        <h2><a href="{% url 'Mycloud:signup' %}">{{ signup }}Sign up</a></h2>
+        <h2><a href="{% url 'Mycloud:login' %}">{{ login }}Login</a></h2>
+    {% endif %}
+  
+{% endblock %}
