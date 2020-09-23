@@ -1,15 +1,22 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from Mycloud.form import SignUpForm, UserLoginForm
+from Mycloud.form import SignUpForm, UserLoginForm, DocumentForm
+from Mycloud.models import Document #to import the fileupload model
 from django.contrib import messages
+from django.contrib.sessions.models import Session
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+
+
 
 # Create your views here.
-
 def index(request):
     return render(request,'Mycloud/index.html')
+
+
 
 
 def signup(request):
@@ -36,11 +43,11 @@ def user_login(request):
     if request.method == 'POST': 
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password) #authenticate confirm if username and password correspond
         if user:
             if user.is_active:
                 login(request,user)
-                return HttpResponseRedirect(reverse('Mycloud:home'))
+                return HttpResponseRedirect(reverse('Mycloud:index'))
             else:
                 return HttpResponse("Your account was inactive.")
         else:
@@ -50,15 +57,37 @@ def user_login(request):
     else:
         return render(request, 'Mycloud/login.html', {'form': form})
 
-@login_required
+@login_required #trying to use decorator, though the login code didnt get here
 def special(request):
     return HttpResponse("You are logged in !")
 
-def home(request):
-    return render(request, 'Mycloud/home.html')
+def user_logout(request):# users logout function
+    logout(request)
+    #return HttpResponse("You are logged out !")# logout function end here
+    return redirect('Mycloud:index') # just a line i choose to add in case i decide to redirect to index page
 
 @login_required
-def user_logout(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('index'))
-    
+def upload(request): #function for users to upload files
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES) #expect  a doc
+        if form.is_valid():
+            newdoc = Document(document = request.FILES['document'])
+            newdoc.user = request.user
+            newdoc.save()
+            return redirect('Mycloud:home')
+    else:
+        form = DocumentForm()
+    return render(request, 'Mycloud/upload.html', {  'form': form }) 
+
+@login_required
+def home(request):
+    documents = Document.objects.filter(user=request.user)
+    return render(request, 'Mycloud/home.html', {
+        "documents": documents
+    })
+
+def delete_file(request, pk):
+    if request.method == "POST":
+        documents = Document.objects.get(pk=pk)
+        documents.delete()
+    return redirect('Mycloud:home')
