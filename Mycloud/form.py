@@ -1,4 +1,5 @@
 from django import forms
+from Mycloud.models import Document
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
@@ -19,3 +20,8 @@ class UserLoginForm(AuthenticationForm):
     field =('username', 'password', )
 
 
+class DocumentForm(forms.ModelForm):
+
+    class Meta:
+        model = Document
+        fields = ('description', 'document')
