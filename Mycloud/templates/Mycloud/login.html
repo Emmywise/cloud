@@ -1,14 +1,17 @@
-{% load static %}
-  
-{% block title %}
-      Login
-{% endblock %}
-<h1>Login:</h1>
+{% extends "Mycloud/static.html" %}
 {% block content %}
-<form method="POST">
-      {% csrf_token %}
-      {{form.as_p}}
-      <input type="submit" name="" value="login">
-</form>
-<h2><a href="{% url 'Mycloud:signup' %}">{{ signup }}Sign up</a></h2>
+      {% load static %}
+      
+      {% block title %}
+            Login
+      {% endblock %}
+      <h1>Login:</h1>
+      {% block login %}
+      <form method="POST">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" name="" value="login" class="btn btn-primary">
+      </form>
+      <h2><a href="{% url 'Mycloud:signup' %}" class="btn btn-primary">{{ signup }}Sign up</a></h2>
+      {% endblock %}
 {% endblock %}

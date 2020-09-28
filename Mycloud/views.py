@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from Mycloud.form import SignUpForm, UserLoginForm, DocumentForm
-from Mycloud.models import Document #to import the fileupload model
+from Mycloud.form import SignUpForm, UserLoginForm, DocumentForm, ImageForm
+from Mycloud.models import Document, ImageUpload #to import the fileupload model
 from django.contrib import messages
 from django.contrib.sessions.models import Session
 from django.contrib.auth import logout
@@ -16,8 +16,13 @@ from django.contrib.auth.models import User
 def index(request):
     return render(request,'Mycloud/index.html')
 
-
-
+@login_required
+def home(request):
+    documents = Document.objects.filter(user=request.user)
+    images = ImageUpload.objects.all()
+    return render(request, 'Mycloud/home.html', {
+        "documents": documents, "images": images
+    })
 
 def signup(request):
     if request.method == 'POST':
@@ -57,9 +62,9 @@ def user_login(request):
     else:
         return render(request, 'Mycloud/login.html', {'form': form})
 
-@login_required #trying to use decorator, though the login code didnt get here
-def special(request):
-    return HttpResponse("You are logged in !")
+    @login_required #trying to use decorator, though the login code didnt get here
+    def special(request):
+        return HttpResponse("You are logged in !")
 
 def user_logout(request):# users logout function
     logout(request)
@@ -71,23 +76,39 @@ def upload(request): #function for users to upload files
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES) #expect  a doc
         if form.is_valid():
+            #form.save()
             newdoc = Document(document = request.FILES['document'])
             newdoc.user = request.user
-            newdoc.save()
+            
+            form=newdoc.save()
+            #documents = form.instance
+            #return render(request, Mycloud/home.html, {'form':form, 'documents':documents})
             return redirect('Mycloud:home')
     else:
         form = DocumentForm()
     return render(request, 'Mycloud/upload.html', {  'form': form }) 
 
 @login_required
-def home(request):
-    documents = Document.objects.filter(user=request.user)
-    return render(request, 'Mycloud/home.html', {
-        "documents": documents
-    })
+def imageupload(request):
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+        return redirect ('Mycloud:home')
+    else:
+        form = ImageForm
+    return render(request, 'Mycloud/imageupload.html', {  'form': form } )
 
 def delete_file(request, pk):
     if request.method == "POST":
         documents = Document.objects.get(pk=pk)
         documents.delete()
     return redirect('Mycloud:home')
+
+
+def delete_image(request, pk):
+    if request.method == "POST":
+        images = ImageUpload.objects.get(pk=pk)
+        images.delete()
+    return redirect('Mycloud:home')
+

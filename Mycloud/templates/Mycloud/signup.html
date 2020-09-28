@@ -1,6 +1,5 @@
-<html>
-<body>
- 
+
+{% block content %}
   {% load static %}
   
   <h2>sign up</h2>
@@ -22,8 +21,7 @@
         {% endfor %}
       </p>  
     {% endfor %}
-      <input type='submit' id='submit' name='signup' value='Sign up'>
+      <input type='submit' id='submit' name='signup' value='Sign up' class="btn btn-primary">
   </form>
 
-</body>
-</html>
+{% endblock %}

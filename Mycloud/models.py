@@ -4,9 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
 
-
 # Create your models here.
-
 
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
@@ -37,4 +35,14 @@ class Document(models.Model):
 
     def delete(self, *args, **kwargs):
         self.document.delete()
+        super().delete(*args, **kwargs)
+
+class ImageUpload(models.Model):
+    caption = models.CharField(max_length=21, blank=True)
+    image = models.ImageField(upload_to ='images/%y%m%d')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    #user = models.ForeignKey(User, on_delete=CASCADE)
+
+    def delete(self, *args, **kwargs):
+        self.image.delete()
         super().delete(*args, **kwargs)

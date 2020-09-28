@@ -1,9 +1,9 @@
 
-{% block body_block %}
+{% block content %}
 
   {% load static %}
   
-  {% block content %}
+  {% block body_block %}
     {% csrf_token %}
   {% endblock %}
   
@@ -11,9 +11,12 @@
     <h1>Welcome to the cloud !</h1>
     {% if user.is_authenticated %}
         <h2>Hello {{ user.username }}</h2>
+        <h3><a href="{% url 'Mycloud:home' %}">{{ dashboard }}go to dashboard</a></h3>
+        <h3><a href="{% url 'Mycloud:logout' %}">{{ logout }}logout</a></h3>
+
+
     {% else %}
         <h2><a href="{% url 'Mycloud:signup' %}">{{ signup }}Sign up</a></h2>
         <h2><a href="{% url 'Mycloud:login' %}">{{ login }}Login</a></h2>
     {% endif %}
-  
 {% endblock %}

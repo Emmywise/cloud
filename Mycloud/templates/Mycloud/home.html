@@ -1,17 +1,77 @@
-{% block body_block %}
+{% extends "Mycloud/static.html" %}
+{% load static %}
 
-    {% load static %}
-    
-    <h1>You are logged :</h1>
-    {% block content %}
-        {% csrf_token %}
-        <h4>Welcome Home</h4>
-        {% if user.is_loggedin  %}
-        <h2>Hello {{ user.username }}</h2>
+{% block content %}        
+    {% block body %}
+        {%if user.is_authenticated%}
+            {% block username %}
+                {% csrf_token %}                
+                <h2> {{ user.username }}dashboard</h2>                
+            {% endblock %}            
+            {% block upload %}
+                {% csrf_token %}
+                <p><a href="{% url 'Mycloud:upload' %}" class="btn btn-primary">upload doc</a></p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>description</th>
+                            <th>files</th>
+                            <th>download</th>
+                            <th>delete</th>                                
+                        </tr>
+                    </thead>
+
+                    <tbody>                                                        
+                        {% for file in documents %}                                 
+                            <tr>                                    
+                                <td>{{file.description}}</td>
+                                <td>{{file.document}}</td> 
+                                <td> <a href="{{file.document.url}}" class="btn btn-primary btn-sm" target="_blank">download file</a></td>
+                                <td>
+                                    <form method="POST" action="{% url 'Mycloud:delete_file' file.pk %}">
+                                        {%csrf_token%}
+                                        <button type="submit" class="btn btn-danger">delete</button>
+                                    </form>                                        
+                                </td>
+                            </tr>                             
+                        {% endfor %}     
+                    </tbody>
+                </table>
+                <p><a href="{% url 'Mycloud:imageupload' %}" class="btn btn-primary">upload image</a></p>
+
+                <table class="table">
+                    <thead >
+                        <tr>
+                            <th>Caption</th>
+                            <th>Image</th>
+                            <th>delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for image in images %}
+                            <tr> 
+                              
+                                <td>{{ image.caption}}</td>
+                                <td>
+                                    {% if image.image %}
+                                    <img src="{{image.image.url}}"alt="{{image.caption}}" style="width:100px";>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{% url 'Mycloud:delete_image' image.pk %}">
+                                        {%csrf_token%}
+                                        <button type="submit" class="btn btn-danger">delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p><a href="{% url 'Mycloud:index' %}">{{ index }}Go to home</a></p>
+            {% endblock %}
+            
+        {% else %}
+            <h3><a href="{% url 'Mycloud:index' %}">{{ login }}login or create an account</a></h3>
         {% endif %}
-  
     {% endblock %}
-
-    <h2><a href="{% url 'Mycloud:login' %}">{{ logout }}logout</a></h2>
-
 {% endblock %}
